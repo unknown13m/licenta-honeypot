@@ -3,7 +3,7 @@ Sistem de detecție și analiză a atacurilor cibernetice bazat pe tehnologia ho
 
 Codul sursă al proiectului este disponibil la adresa:
 
-https://github.com/unknown13m
+https://github.com/unknown13m/licenta-honeypot
 
 Repository-ul este public și conține codul sursă al aplicației.
 
