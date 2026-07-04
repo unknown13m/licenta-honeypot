@@ -1,0 +1,139 @@
+﻿@page
+@inject MongoDB.Driver.IMongoCollection<BsonDocument> Collection
+@{
+    ViewData["Title"] = "Cybersecurity Dashboard";
+
+    var totalSSH = await Collection.CountDocumentsAsync(Builders<BsonDocument>.Filter.Eq("type", "SSH"));
+    var totalMedical = await Collection.CountDocumentsAsync(Builders<BsonDocument>.Filter.Eq("type", "DICOM/Medical"));
+    var totalGeneral = totalSSH + totalMedical;
+
+    var attacksForTable = await Collection.Find(new BsonDocument())
+                                          .SortByDescending(x => x["timestamp"])
+                                          .Limit(200) 
+                                          .ToListAsync();
+}
+
+
+<div class="text-center">
+    <h1 class="display-4 text-primary">Honeypot Analizare Date</h1>
+    <p class="lead">Monitorizare în timp real - @totalGeneral de evenimente in total</p>
+    <a asp-page="./Analytics" class="btn btn-warning shadow-sm mb-4"> Detalii pt IP-uri</a>
+
+    <hr />
+</div>
+
+
+<div class="container mt-4">
+    
+    <div class="row mb-5">
+        <div class="col-md-6 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-dark text-white text-center">
+                    <h5 class="mb-0">Proporția Atacurilor pe Protocoale</h5>
+                </div>
+                <div class="card-body" style="position: relative; height:300px;">
+                    <canvas id="attacksChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-md-4">
+            <div class="card bg-dark text-white shadow h-100">
+                <div class="card-body text-center">
+                    <h6>Total Bază de Date</h6>
+                    <h2 class="display-4">@totalGeneral</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-info text-white shadow h-100">
+                <div class="card-body text-center">
+                    <h6>Atacuri SSH</h6>
+                    <h2 class="display-4">@totalSSH</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-danger text-white shadow h-100">
+                <div class="card-body text-center">
+                    <h6>Medical (DICOM)</h6>
+                    <h2 class="display-4">@totalMedical</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Ultimele 200 de evenimente (scroll pentru mai multe)</h5>
+            <div>
+                <span class="badge bg-light text-primary shadow-sm">
+                    <i class="bi bi-arrow-clockwise"></i> live update: 30s
+                </span>
+            </div>
+        </div>
+        <div class="card-body p-0" style="max-height: 600px; overflow-y: auto;">
+            <table class="table table-hover mb-0">
+                <thead class="table-light" style="position: sticky; top: 0;">
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>IP Atacator</th>
+                        <th>Tip Serviciu</th>
+                        <th>Detalii</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var attack in attacksForTable)
+                    {
+                        string? displayIp = "N/A";
+                        if (attack.Contains("src_ip")) displayIp = attack["src_ip"].ToString();
+                        else if (attack.Contains("ip")) displayIp = attack["ip"].ToString();
+
+                        <tr class="@(attack["type"] == "DICOM/Medical" ? "table-danger" : "")">
+                            <td>@attack["timestamp"]</td>
+                            <td class="fw-bold text-monospace">@displayIp</td>
+                            <td>
+                                <span class="badge @(attack["type"] == "SSH" ? "bg-info" : "bg-warning text-dark")">
+                                    @attack["type"]
+                                </span>
+                            </td>
+                            <td>
+                                <a asp-page="./Details" asp-route-id="@attack["_id"].ToString()" class="btn btn-sm btn-outline-primary">
+                                    Detalii
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const ctx = document.getElementById('attacksChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['SSH', 'DICOM Medical'],
+                datasets: [{
+                    data: [@totalSSH, @totalMedical],
+                    backgroundColor: ['#0dcaf0', '#dc3545'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+    });
+</script>
+
+<script>
+    setTimeout(function(){ location.reload(); }, 30000);
+</script>

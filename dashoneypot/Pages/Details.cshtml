@@ -1,0 +1,36 @@
+@page "{id}"
+@using MongoDB.Bson
+@using MongoDB.Driver
+@inject IMongoCollection<BsonDocument> Collection
+@{
+    var id = RouteData.Values["id"]?.ToString();
+    var filter = Builders<BsonDocument>.Filter.Eq("_id", ObjectId.Parse(id));
+    var attack = await Collection.Find(filter).FirstOrDefaultAsync();
+    ViewData["Title"] = "Detalii Atac";
+}
+
+<div class="container mt-5">
+    <a asp-page="./Index" class="btn btn-secondary mb-3">← Înapoi la Dashboard</a>
+    
+    <div class="card shadow border-danger">
+        <div class="card-header bg-danger text-white">
+            <h2 class="mb-0">Analiză Detaliată: @attack["src_ip"]</h2>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Data și Ora:</strong> @attack["timestamp"]</p>
+                    <p><strong>Protocol vizat:</strong> <span class="badge bg-info">@attack["type"]</span></p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>ID Eveniment:</strong> @(attack.Contains("eventid") ? attack["eventid"] : "N/A")</p>
+                </div>
+            </div>
+            <hr />
+            <h4>Date Brute (Payload/Log):</h4>
+            <div class="bg-light p-3 border rounded">
+                <pre>@attack.ToJson(new MongoDB.Bson.IO.JsonWriterSettings { Indent = true })</pre>
+            </div>
+        </div>
+    </div>
+</div>

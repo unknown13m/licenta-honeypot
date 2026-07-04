@@ -1,0 +1,9 @@
+bin/
+obj/
+.vs/
+*.exe
+*.dll
+*.pdb
+nohup.out
+atacs.json
+*.log
