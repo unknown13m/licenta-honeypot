@@ -59,19 +59,19 @@ docker ps
 
 Containerele principale ale sistemului sunt:
 
-licenta-honeypot-ssh-1
-licenta-honeypot-medical-1
-licenta-honeypot-db-mongo-1
-licenta-honeypot-db-postgres-1
-licenta-honeypot-vnc-1
+- licenta-honeypot-ssh-1;
+- licenta-honeypot-medical-1;
+- licenta-honeypot-db-mongo-1;
+- licenta-honeypot-db-postgres-1;
+- licenta-honeypot-vnc-1.
 
 Serviciile expuse sunt:
 
-SSH honeypot Cowrie: port public 22 -> port intern 2222
-Honeypot medical: port 104 -> port 104
-MongoDB: port 27017 -> port 27017
-PostgreSQL: port 5432 -> port 5432
-VNC: port 5900 -> port 5900
+- SSH honeypot Cowrie: port public 22, port intern 2222;
+- Honeypot medical: port 104, port 104;
+- MongoDB: port 27017, port 27017;
+- PostgreSQL: port 5432, port 5432;
+- VNC: port 5900, port 5900.
 
 Accesul administrativ real la server se face separat, prin portul 2221.
 Scriptul Python se rulează pe serverul cloud din directorul /root/licenta.
@@ -84,9 +84,9 @@ Aplicația web se află în folderul "dashoneypot".
 
 Pentru compilare, se deschide un terminal în directorul proiectului și se rulează:
 
-cd dashoneypot
-dotnet restore
-dotnet build
+- cd dashoneypot;
+- dotnet restore;
+- dotnet build.
 
 Comanda dotnet restore descarcă dependențele necesare, iar dotnet build compilează aplicația.
 
@@ -99,13 +99,12 @@ http://localhost:5000
 Aplicația se conectează la MongoDB, citește evenimentele salvate în colecția attacks și le afișează în interfața web.
 
 Dashboard-ul permite:
-
-vizualizarea numărului total de evenimente;
-vizualizarea atacurilor SSH;
-vizualizarea evenimentelor DICOM/Medical;
-afișarea ultimelor evenimente înregistrate;
-analiza atacatorilor grupați după IP;
-afișarea detaliilor brute pentru fiecare eveniment.
+- vizualizarea numărului total de evenimente;
+- vizualizarea atacurilor SSH;
+- vizualizarea evenimentelor DICOM/Medical;
+- afișarea ultimelor evenimente înregistrate;
+- analiza atacatorilor grupați după IP;
+- afișarea detaliilor brute pentru fiecare eveniment.
 
 Fișierul docker-compose.yml definește serviciile Docker ale proiectului: Cowrie SSH, honeypot medical, MongoDB, PostgreSQL, VNC, Dockerfile.
 
